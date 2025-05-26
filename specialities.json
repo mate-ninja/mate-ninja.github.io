@@ -1,0 +1,30 @@
+{
+    "alchemist": {
+        "level3": ["healing-word", "ray-of-sickness"],
+        "level5": ["flaming-sphere", "melfs-acid-arrow"],
+        "level9": ["gaseous-form", "mass-healing-word"],
+        "level13": ["blight", "death-ward"],
+        "level17": ["cloudkill", "raise-dead"]
+    },
+    "armorer": {
+        "level3": ["magic-missile", "thunderwave"],
+        "level5": ["mirror-image", "shatter"],
+        "level9": ["hypnotic-pattern", "lightning-bolt"],
+        "level13": ["fire-shield", "greater-invisibility"],
+        "level17": ["passwall", "wall-of-force"]
+    },
+    "artillerist": {
+        "level3": ["shield", "thunderwave"],
+        "level5": ["scorching-ray", "shatter"],
+        "level9": ["fireball", "wind-wall"],
+        "level13": ["ice-storm", "wall-of-fire"],
+        "level17": ["cone-of-cold", "wall-of-force"]
+    },
+    "battle-smith": {
+        "level3": ["heroism", "shield"],
+        "level5": ["branding-smite", "warding-bond"],
+        "level9": ["aura-of-vitality", "conjure-barrage"],
+        "level13": ["aura-of-purity", "fire-shield"],
+        "level17": ["banishing-smite", "mass-cure-wounds"]
+    }
+}

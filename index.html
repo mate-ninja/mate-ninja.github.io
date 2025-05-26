@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artificer Spellbook</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="spellbook-header text-center">
+        <div class="container">
+            <h1><i class="bi bi-book"></i> Artificer Spellbook</h1>
+            <p class="lead">Your handy spell reference tool</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="spellSearch" class="form-control" placeholder="Search spells...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button id="addCustomSpellBtn" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-plus-circle"></i> Add Spell
+                </button>
+            </div>
+            <div class="col-md-3">
+                <select id="levelSelect" class="form-select">
+                    <option value="all">All Levels</option>
+                    <option value="cantrip">Cantrips</option>
+                    <option value="1">Level 1</option>
+                    <option value="2">Level 2</option>
+                    <option value="3">Level 3</option>
+                    <option value="4">Level 4</option>
+                    <option value="5">Level 5</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select id="classSelect" class="form-select">
+                    <option value="artificer">Artificer</option>
+                    <option value="bard">Bard</option>
+                    <option value="cleric">Cleric</option>
+                    <option value="druid">Druid</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <select id="specialitySelect" class="form-select">
+                    <option value="none">No speciality</option>
+                    <option value="alchemist">Alchemist</option>
+                    <option value="armorer">Armorer</option>
+                    <option value="artillerist">Artillerist</option>
+                    <option value="battle-smith">Battle Smith</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3 flex-center">
+            <div class="col-md-2 d-flex gap-2">
+                <button id="showSpecialities" class="btn btn-outline-info flex-grow-1">
+                    <i class="bi bi-shield"></i>
+                </button>
+                <button id="showFavorites" class="btn btn-outline-warning flex-grow-1">
+                    <i class="bi bi-star-fill"></i>
+                </button>
+                <button id="showCustomOnlyBtn" class="btn btn-outline-info me-2">
+                    <i class="bi bi-file-earmark-plus"></i>Custom
+                </button>
+            </div>
+        </div>
+        <div class="modal fade" id="customSpellModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Custom Spell</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="customSpellLevel" class="form-label">Spell Level</label>
+                            <select id="customSpellLevel" class="form-select">
+                                <option value="cantrip">Cantrip</option>
+                                <option value="1">Level 1</option>
+                                <option value="2">Level 2</option>
+                                <option value="3">Level 3</option>
+                                <option value="4">Level 4</option>
+                                <option value="5">Level 5</option>
+                                <option value="6">Level 6</option>
+                                <option value="7">Level 7</option>
+                                <option value="8">Level 8</option>
+                                <option value="9">Level 9</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="customSpellName" class="form-label">Spell Name</label>
+                            <input type="text" id="customSpellName" class="form-control" placeholder="Enter spell name">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" id="saveCustomSpellBtn" class="btn btn-primary">Save Spell</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading spells...</p>
+        </div>
+
+        <div class="left-column">
+            <div id="spellTable" class="row">
+                <!-- Spell levels will be loaded here -->
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div id="spellTable">
+                    <!-- Spell levels will be loaded here -->
+                </div>
+            </div>
+            <div class="col-md-4 d-none d-md-block">
+                <div id="spellTooltip" class="spell-tooltip" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    <div id="preparedSpellsPanel" class="prepared-panel">
+        <div class="prepared-header" id="preparedPanelHandle">
+            <span>Prepared Spells</span>
+            <span id="preparedCount">0</span>
+        </div>
+        <div class="prepared-content">
+            <div class="prepared-list" id="preparedSpellsList"></div>
+            <div class="prepared-actions">
+                <button id="exportPreparedBtn" class="btn btn-sm btn-outline-primary">Export</button>
+                <button id="importPreparedBtn" class="btn btn-sm btn-outline-secondary">Import</button>
+                <input type="file" id="importPreparedInput" style="display: none;">
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
