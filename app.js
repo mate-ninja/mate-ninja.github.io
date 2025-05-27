@@ -6,7 +6,10 @@ const loadingSpinner = document.getElementById('loadingSpinner');
 const levelSelect = document.getElementById('levelSelect');
 const specialitySelect = document.getElementById('specialitySelect');
 const classSelect = document.getElementById('classSelect');
-let currentClass = localStorage.getItem('selectedClass');
+let currentClass = localStorage.getItem('selectedClass') || 'artificer';
+let currentLevel = localStorage.getItem('selectedLevel') || 'all';
+const showNonCantripsBtn = document.getElementById('showNonCantrips');
+let showNonCantripsOnly = false;
 
 let spells = [];
 let favorites = JSON.parse(localStorage.getItem('favoriteSpells')) || [];
@@ -15,6 +18,23 @@ let currentLoadingPhase = 'initial';
 let loadedSpells = 0;
 let totalSpells = 0;
 let specialitySpells = {};
+
+function init() {
+    classSelect.value = currentClass;
+    levelSelect.value = currentLevel;
+    specialitySelect.value = localStorage.getItem('selectedSpeciality') || 'none';
+    updateLevelSelect();
+    fetchSpells();
+}
+
+init()
+
+showNonCantripsBtn.addEventListener('click', () => {
+    showNonCantripsOnly = !showNonCantripsOnly;
+    showNonCantripsBtn.classList.toggle('btn-info', showNonCantripsOnly);
+    showNonCantripsBtn.classList.toggle('btn-outline-info', !showNonCantripsOnly);
+    renderSpellTable();
+});
 
 document.getElementById('showSpecialities').setAttribute('title', 'Show speciality spells only');
 document.getElementById('showFavorites').setAttribute('title', 'Show favorites only');
@@ -443,8 +463,10 @@ function renderSpellTable(filteredSpells = null) {
     const spellsToRender = (filteredSpells || spells).filter(spell => {
         const isCustom = Object.values(customSpells).flat().includes(spell.index);
         const isSpeciality = spell.isSpeciality;
+        const isNonCantrip = spell.sourceLevel !== 'cantrip';
         
-        return (!showFavoritesOnly || favorites.includes(spell.index)) &&
+        return (!showNonCantripsOnly || isNonCantrip) &&
+               (!showFavoritesOnly || favorites.includes(spell.index)) &&
                (!showCustomOnly || isCustom) &&
                (!showSpecialitiesOnly || isSpeciality);
     });
@@ -516,8 +538,11 @@ function renderSpellTable(filteredSpells = null) {
                 const isPrepared = preparedSpells.includes(spell.index);
                 const isFree = freePreparedSpells.includes(spell.index) || spell.isSpeciality;
                 
+                const concentrationIcon = spell.concentration ? '<i class="bi bi-c-circle concentration-icon" title="Requires concentration"></i>' : '';
+
                 div.innerHTML = `
                     <div class="spell-name-container">
+                        ${concentrationIcon}
                         <span class="spell-name" style="${notInAPI ? 'font-style: italic;' : ''}">${formattedName}</span>
                         ${componentsDisplay}
                         ${specialityBadge}
@@ -592,6 +617,9 @@ function showTooltip(spell) {
         spellTooltip.style.display = 'none';
         return;
     }
+    const concentrationInfo = spell.concentration ? 
+        '<p><strong>Requires Concentration:</strong> Yes</p>' : 
+        '<p><strong>Requires Concentration:</strong> No</p>';
 
     let higherLevelsInfo = '';
     if (spell.higher_level && spell.higher_level.length > 0) {
@@ -610,6 +638,7 @@ function showTooltip(spell) {
         <p><strong>Range:</strong> ${spell.range}</p>
         <p><strong>Components:</strong> <span class="components">${getComponentsString(spell)}</span></p>
         <p><strong>Duration:</strong> ${spell.duration}</p>
+        ${concentrationInfo}
         <p><strong>Casting Time:</strong> ${spell.casting_time}</p>
         <p>${spell.desc ? spell.desc.join('<br>') : ''}</p>
         ${higherLevelsInfo}
@@ -624,7 +653,11 @@ function hideTooltip() {
     });
 }
 
-levelSelect.addEventListener('change', fetchSpells);
+levelSelect.addEventListener('change', () => {
+    currentLevel = levelSelect.value;
+    localStorage.setItem('selectedLevel', currentLevel);
+    fetchSpells();
+});
 specialitySelect.addEventListener('change', fetchSpells);
 spellSearch.addEventListener('input', () => {
     const query = spellSearch.value.toLowerCase().trim();
@@ -802,7 +835,6 @@ importPreparedInput.addEventListener('change', (e) => {
 });
 
 function updateLevelSelect() {
-    const selectedClass = classSelect.value;
     levelSelect.innerHTML = `
         <option value="all">All Levels</option>
         <option value="cantrip">Cantrips</option>
@@ -812,14 +844,21 @@ function updateLevelSelect() {
         <option value="4">Level 4</option>
         <option value="5">Level 5</option>
     `;
-    
-    if (selectedClass !== 'artificer') {
+
+    if (currentClass !== 'artificer') {
         levelSelect.innerHTML += `
             <option value="6">Level 6</option>
             <option value="7">Level 7</option>
             <option value="8">Level 8</option>
             <option value="9">Level 9</option>
         `;
+    }
+
+    const savedLevel = localStorage.getItem('selectedLevel');
+    if (savedLevel && levelSelect.querySelector(`option[value="${savedLevel}"]`)) {
+        levelSelect.value = savedLevel;
+    } else {
+        levelSelect.value = 'all';
     }
 }
 
@@ -828,6 +867,9 @@ classSelect.addEventListener('change', () => {
     currentLoadingPhase = 'initial';
     loadedSpells = 0;
     totalSpells = 0;
+
+    currentClass = classSelect.value;
+    localStorage.setItem('selectedClass', currentClass);
     
     // Zaktualizuj UI
     updateProgress('Preparing to load spells...');
@@ -847,8 +889,6 @@ classSelect.addEventListener('change', () => {
 });
 
 classSelect.value = localStorage.getItem('selectedClass') || 'artificer';
-updateLevelSelect();
-fetchSpells();
 
 updatePreparedSpellsList()
 preparedSpellsPanel.classList.toggle('collapsed');
