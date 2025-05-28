@@ -11,6 +11,22 @@ let currentLevel = localStorage.getItem('selectedLevel') || 'all';
 const showNonCantripsBtn = document.getElementById('showNonCantrips');
 let showNonCantripsOnly = false;
 
+const addCustomSpellBtn = document.getElementById('addCustomSpellBtn');
+const customSpellModal = new bootstrap.Modal(document.getElementById('customSpellModal'));
+const saveCustomSpellBtn = document.getElementById('saveCustomSpellBtn');
+const customSpellLevel = document.getElementById('customSpellLevel');
+const customSpellName = document.getElementById('customSpellName');
+
+const loadingProgressBar = document.createElement('div');
+loadingProgressBar.className = 'loading-progress-bar';
+loadingProgressBar.innerHTML = `
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+        <div class="progress-text">0%</div>
+        <div class="current-spell"></div>
+    </div>
+`;
+
 let spells = [];
 let favorites = JSON.parse(localStorage.getItem('favoriteSpells')) || [];
 let showFavoritesOnly = false;
@@ -39,16 +55,6 @@ showNonCantripsBtn.addEventListener('click', () => {
 document.getElementById('showSpecialities').setAttribute('title', 'Show speciality spells only');
 document.getElementById('showFavorites').setAttribute('title', 'Show favorites only');
 
-const loadingProgressBar = document.createElement('div');
-loadingProgressBar.className = 'loading-progress-bar';
-loadingProgressBar.innerHTML = `
-    <div class="progress-container">
-        <div class="progress-bar"></div>
-        <div class="progress-text">0%</div>
-        <div class="current-spell"></div>
-    </div>
-`;
-
 const backToTopBtn = document.createElement('div');
 backToTopBtn.className = 'back-to-top';
 backToTopBtn.innerHTML = '<i class="bi bi-arrow-up"></i>';
@@ -61,11 +67,6 @@ window.addEventListener('scroll', () => {
     backToTopBtn.classList.toggle('visible', window.scrollY > 300);
 });
 
-const addCustomSpellBtn = document.getElementById('addCustomSpellBtn');
-const customSpellModal = new bootstrap.Modal(document.getElementById('customSpellModal'));
-const saveCustomSpellBtn = document.getElementById('saveCustomSpellBtn');
-const customSpellLevel = document.getElementById('customSpellLevel');
-const customSpellName = document.getElementById('customSpellName');
 
 let customSpells = JSON.parse(localStorage.getItem('customSpells')) || {};
 
@@ -165,7 +166,7 @@ function updateProgress(spellName, totalForCurrentPhase = totalSpells) {
 
 async function loadSpecialities() {
     try {
-        const response = await fetch('specialities.json');
+        const response = await fetch('artificer_specialities.json');
         specialitySpells = await response.json();
     } catch (error) {
         console.error('Error loading specialities:', error);
@@ -183,6 +184,12 @@ async function fetchSpells() {
         }
 
         document.body.classList.remove('finished');
+        classSelect.setAttribute('disabled', '');
+        levelSelect.setAttribute('disabled', '');
+        addCustomSpellBtn.setAttribute('disabled', '');
+        const isArtificer = classSelect.value === 'artificer';
+        document.getElementById('specialitySelect').disabled = !isArtificer;
+        document.getElementById('showSpecialities').disabled = !isArtificer;
         loadingSpinner.style.display = 'block';
         loadingSpinner.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Loading spells...</p>';
         
@@ -325,6 +332,9 @@ async function fetchSpells() {
         loadingSpinner.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Loading spells...</p>';
         loadingProgressBar.remove();
         document.body.classList.add('finished');
+        classSelect.removeAttribute('disabled');
+        levelSelect.removeAttribute('disabled');
+        addCustomSpellBtn.removeAttribute('disabled');
         renderSpellTable();
     } catch (error) {
         console.error('Error fetching spells:', error);
@@ -618,7 +628,7 @@ function showTooltip(spell) {
         return;
     }
     const concentrationInfo = spell.concentration ? 
-        '<p><strong>Requires Concentration:</strong> Yes</p>' : 
+        '<p class="concentration"><strong>Requires Concentration:</strong> Yes</p>' : 
         '<p><strong>Requires Concentration:</strong> No</p>';
 
     let higherLevelsInfo = '';
@@ -687,7 +697,6 @@ document.getElementById('showSpecialities').addEventListener('click', () => {
 
 specialitySelect.value = localStorage.getItem('selectedSpeciality') || 'none';
 levelSelect.value = localStorage.getItem('selectedLevel') || 'all';
-fetchSpells();
 
 let preparedSpells = JSON.parse(localStorage.getItem('preparedSpells')) || [];
 let freePreparedSpells = JSON.parse(localStorage.getItem('freePreparedSpells')) || [];
@@ -878,12 +887,7 @@ classSelect.addEventListener('change', () => {
     
     // Wywołaj resztę logiki
     updateLevelSelect();
-    
-    // Ukryj kontrolki specjalizacji dla nie-artificerów
-    const isArtificer = classSelect.value === 'artificer';
-    document.getElementById('specialitySelect').disabled = !isArtificer;
-    document.getElementById('showSpecialities').disabled = !isArtificer;
-    
+
     // Załaduj nowe zaklęcia
     fetchSpells();
 });
