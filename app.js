@@ -14,8 +14,6 @@ let showNonCantripsOnly = false;
 const addCustomSpellBtn = document.getElementById('addCustomSpellBtn');
 const customSpellModal = new bootstrap.Modal(document.getElementById('customSpellModal'));
 const saveCustomSpellBtn = document.getElementById('saveCustomSpellBtn');
-addCustomSpellBtn.style.marginTop = 10px;
-addCustomSpellBtn.style.marginBottom = 10px;
 const customSpellLevel = document.getElementById('customSpellLevel');
 const customSpellName = document.getElementById('customSpellName');
 
