@@ -1,1 +1,9 @@
-{}
+{
+    "spore": {
+        "level2": ["chill-touch"],
+        "level3": ["blindness-deafness", "gentle-repose"],
+        "level5": ["animate-dead", "gaseous-form"],
+        "level7": ["blight", "confusion"],
+        "level9": ["cloudkill", "contagion"]
+    }
+}

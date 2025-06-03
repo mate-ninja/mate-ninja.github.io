@@ -1,9 +1,1 @@
-{
-    "grave": {
-        "level1": ["bane", "false-life"],
-        "level3": ["gentle-repose", "ray-of-enfeeblement"],
-        "level5": ["revivify", "vampiric-touch"],
-        "level7": ["blight", "death-ward"],
-        "level9": ["antilife-shell", "raise-dead"]
-    }
-}
+{}

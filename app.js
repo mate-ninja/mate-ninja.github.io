@@ -188,8 +188,8 @@ async function fetchSpells() {
         levelSelect.setAttribute('disabled', '');
         addCustomSpellBtn.setAttribute('disabled', '');
         const isArtificer = classSelect.value === 'artificer';
-        document.getElementById('specialitySelect').disabled = !isArtificer;
-        document.getElementById('showSpecialities').disabled = !isArtificer;
+        document.getElementById('specialitySelect').disabled = true;
+        document.getElementById('showSpecialities').disabled = true;
         loadingSpinner.style.display = 'block';
         loadingSpinner.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Loading spells...</p>';
         
@@ -335,6 +335,8 @@ async function fetchSpells() {
         classSelect.removeAttribute('disabled');
         levelSelect.removeAttribute('disabled');
         addCustomSpellBtn.removeAttribute('disabled');
+        document.getElementById('specialitySelect').disabled = !isArtificer;
+        document.getElementById('showSpecialities').disabled = !isArtificer;
         renderSpellTable();
     } catch (error) {
         console.error('Error fetching spells:', error);
