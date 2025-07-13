@@ -624,6 +624,117 @@ function toggleFavorite(index) {
     renderSpellTable();
 }
 
+function parseMarkdown(toParse) {
+    if (!Array.isArray(toParse)) {
+        return toParse;
+    }
+    
+    let lines = [...toParse];
+    let result = [];
+    let i = 0;
+
+    const colorizeDice = (text) => {
+        return text.replace(/(\d+)d(\d+)/g, (match, count, dice) => {
+            let color, textColor = 'white';
+            
+            switch(dice) {
+                case '4':
+                    color = '#FFD700'; // żółty (d4)
+                    textColor = 'black';
+                    break;
+                case '6':
+                    color = '#5ab7dcff'; // jasnoniebieski (d6)
+                    textColor = 'black';
+                    break;
+                case '8':
+                    color = '#FFA500'; // pomarańczowy (d8)
+                    break;
+                case '10':
+                    color = '#32CD32'; // zielony (d10)
+                    break;
+                case '12':
+                    color = '#000000'; // czarny (d12)
+                    textColor = 'white';
+                    break;
+                case '20':
+                    // Efekt tęczy dla d20
+                    return `<span style="
+                        background: linear-gradient(to right, 
+                            red, orange, yellow, green, blue, indigo, violet);
+                        color: white;
+                        font-weight: bold;
+                        border-radius: 4px;
+                        padding: 2px 5px;
+                        margin: 0 2px;
+                        background-clip: text;
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        text-shadow: 0px 0px 1px rgba(0,0,0,0.3);
+                    ">${count}d${dice}</span>`;
+                default:
+                    color = 'firebrick';
+            }
+            
+            return `<span style="
+                background-color: ${color};
+                color: ${textColor};
+                font-weight: bold;
+                border-radius: 4px;
+                padding: 2px 5px;
+                margin: 0 2px;
+            ">${count}d${dice}</span>`;
+        });
+    };
+
+    while (i < lines.length) {
+        if (lines[i].startsWith('#####')) {
+            const title = `<h5>${lines[i].replace(/^#####\s*/, '').trim()}</h5>`;
+            i++;
+            
+            if (i >= lines.length) {
+                result.push(title);
+                break;
+            }
+
+            const headerLine = lines[i];
+            i++;
+            i++;
+
+            const headers = headerLine.split('|').map(h => h.trim()).filter(h => h);
+            const thead = `
+                <thead>
+                    <tr style="background-color: firebrick; color: white;">
+                        ${headers.map(h => `<th style="padding: 8px; text-align: left;">${h}</th>`).join('')}
+                    </tr>
+                </thead>`;
+            
+            const tbodyRows = [];
+            while (i < lines.length && lines[i].includes('|')) {
+                const cells = lines[i].split('|').map(cell => cell.trim()).filter(cell => cell);
+                tbodyRows.push(`
+                    <tr>
+                        ${cells.map(c => `<td style="padding: 6px; border: 1px solid #ddd;">${c}</td>`).join('')}
+                    </tr>`);
+                i++;
+            }
+            
+            const tbody = `<tbody>${tbodyRows.join('')}</tbody>`;
+            result.push(`
+                ${title}
+                <table style="border-collapse: collapse; width: 100%; margin: 15px 0; font-family: Arial, sans-serif;">
+                    ${thead}
+                    ${tbody}
+                </table>
+                <br>`);
+        } else {
+            result.push(lines[i]);
+            i++;
+        }
+    }
+    
+    return colorizeDice(result.join('<br>').replace(/\*\*\*(.+?)\*\*\*/g, "<b>$1</b>"));
+}
+
 function showTooltip(spell) {
     if (!spell.foundInAPI) {
         spellTooltip.style.display = 'none';
@@ -643,6 +754,12 @@ function showTooltip(spell) {
         `;
     }
 
+    if (spell.desc) {
+        console.log(spell.desc);
+        console.log(typeof(spell.desc))
+        spell.desc = parseMarkdown(spell.desc)
+    }
+
     spellTooltip.innerHTML = `
         <h5>${spell.name}</h5>
         <p><strong>Level:</strong> ${spell.level === 0 ? 'Cantrip' : spell.level}</p>
@@ -652,7 +769,7 @@ function showTooltip(spell) {
         <p><strong>Duration:</strong> ${spell.duration}</p>
         ${concentrationInfo}
         <p><strong>Casting Time:</strong> ${spell.casting_time}</p>
-        <p>${spell.desc ? spell.desc.join('<br>').replace(/\*\*\*(.+?)\*\*\*/g, "<b>$1</b>") : ''}</p>
+        <p>${spell.desc ? spell.desc : ''}</p>
         ${higherLevelsInfo}
     `;
     spellTooltip.style.display = 'block';
