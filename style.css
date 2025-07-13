@@ -656,3 +656,19 @@ body:not(.finished) .spell-level{
 .concentration{
     color: firebrick;
 }
+
+#ankietaCont{
+    position: fixed;
+    top: 30px;
+    right: 40px;
+}
+
+#showAnkieta{
+    color: black;
+    background-color: rgb(32, 138, 195);
+    border-color: rgb(20, 97, 139);
+}
+
+#showAnkieta:hover{
+    background-color: rgb(36, 153, 216);
+}

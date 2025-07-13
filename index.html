@@ -15,7 +15,11 @@
             <h1><i class="bi bi-book"></i> DnD Spellbook</h1>
         </div>
     </div>
-
+    <div id="ankietaCont">
+        <button id="showAnkieta" class="btn btn-outline-primary w-100">
+            <i class="bi bi-pencil-square"></i> Ankieta
+        </button>
+    </div>
     <div class="container">
         <div class="row mb-3">
             <div class="col-md-4">
@@ -110,6 +114,41 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="button" id="saveCustomSpellBtn" class="btn btn-primary">Save Spell</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="ankietaModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="https://formsubmit.co/ppsilangofficial@gmail.com" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Ankieta</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="form-label">Nie ma szans że płacę za serwer, zostaniesz przekierowany na chwilę, potwierdź bycie człowiekiem i powinno cię wrócić</label>
+                            </div>
+                            <div class="mb-3">
+                                <label for="ankietaOpinia" class="form-label">Co byś zmienił na tej stronie?</label>
+                                <textarea type="text" name="opinia" id="ankietaOpinia" class="form-control" placeholder="Co cię frustruję/Co byś dodał"></textarea>
+                            </div>
+                            <input type="text" class="visually-hidden" name="IP" id="ankietaSp">
+                            <div class="mb-3">
+                                <label for="customSpellLevel" class="form-label">Kto mnie zaszczycił?</label>
+                                <select id="customSpellLevel" class="form-select" name="person">
+                                    <option value="idk">Nie podam</option>
+                                    <option value="Tenios">Tenios</option>
+                                    <option value="Azreal">Azreal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ukryj na razie (będę w rogu)</button>
+                            <button type="submit" id="sendSurvey" class="btn btn-primary">Wyślij</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

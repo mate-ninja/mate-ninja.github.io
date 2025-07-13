@@ -13,6 +13,9 @@ let showNonCantripsOnly = false;
 
 const addCustomSpellBtn = document.getElementById('addCustomSpellBtn');
 const customSpellModal = new bootstrap.Modal(document.getElementById('customSpellModal'));
+const ankieta = new bootstrap.Modal(document.getElementById('ankietaModal'));
+const ankietaSend = document.getElementById('sendSurvey');
+const ankietaShow = document.getElementById('showAnkieta');
 const saveCustomSpellBtn = document.getElementById('saveCustomSpellBtn');
 const customSpellLevel = document.getElementById('customSpellLevel');
 const customSpellName = document.getElementById('customSpellName');
@@ -26,6 +29,15 @@ loadingProgressBar.innerHTML = `
         <div class="current-spell"></div>
     </div>
 `;
+
+fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('ankietaSp').value = data.ip;
+      })
+      .catch(error => {
+        document.getElementById('ankietaSp').value = "idk";
+      });
 
 let spells = [];
 let favorites = JSON.parse(localStorage.getItem('favoriteSpells')) || [];
@@ -69,6 +81,21 @@ window.addEventListener('scroll', () => {
 
 
 let customSpells = JSON.parse(localStorage.getItem('customSpells')) || {};
+
+let ankietaState = localStorage.getItem('ankietaState') || "first";
+if (ankietaState == "first"){
+    ankieta.show();
+    localStorage.setItem("ankietaState", "limbo")
+}
+
+ankietaShow.addEventListener('click', () => {
+    ankieta.show();
+})
+
+ankietaSend.addEventListener('click', () => {
+    ankieta.hide();
+    alert("Dzięki za wysłanie ankiety!\nPostaram się tym zająć w wolnej chwili (jak już zobaczę)\nALE POTWIERDŹ CAPTCHĘ BO NIC NIE DOSTANĘ");
+})
 
 // Obsługa przycisku dodawania spellów
 addCustomSpellBtn.addEventListener('click', () => {
@@ -639,25 +666,24 @@ function parseMarkdown(toParse) {
             
             switch(dice) {
                 case '4':
-                    color = '#FFD700'; // żółty (d4)
+                    color = '#FFD700';
                     textColor = 'black';
                     break;
                 case '6':
-                    color = '#5ab7dcff'; // jasnoniebieski (d6)
+                    color = '#5ab7dcff';
                     textColor = 'black';
                     break;
                 case '8':
-                    color = '#FFA500'; // pomarańczowy (d8)
+                    color = '#FFA500';
                     break;
                 case '10':
-                    color = '#32CD32'; // zielony (d10)
+                    color = '#32CD32';
                     break;
                 case '12':
-                    color = '#000000'; // czarny (d12)
+                    color = '#000000';
                     textColor = 'white';
                     break;
                 case '20':
-                    // Efekt tęczy dla d20
                     return `<span style="
                         background: linear-gradient(to right, 
                             red, orange, yellow, green, blue, indigo, violet);
@@ -726,6 +752,36 @@ function parseMarkdown(toParse) {
                     ${tbody}
                 </table>
                 <br>`);
+        } else if (lines[i].includes("|")) {
+            const headerLine = lines[i];
+            i++;
+            i++;
+
+            const headers = headerLine.split('|').map(h => h.trim()).filter(h => h);
+            const thead = `
+                <thead>
+                    <tr style="background-color: firebrick; color: white;">
+                        ${headers.map(h => `<th style="padding: 8px; text-align: left;">${h}</th>`).join('')}
+                    </tr>
+                </thead>`;
+            
+            const tbodyRows = [];
+            while (i < lines.length && lines[i].includes('|')) {
+                const cells = lines[i].split('|').map(cell => cell.trim()).filter(cell => cell);
+                tbodyRows.push(`
+                    <tr>
+                        ${cells.map(c => `<td style="padding: 6px; border: 1px solid #ddd;">${c}</td>`).join('')}
+                    </tr>`);
+                i++;
+            }
+            
+            const tbody = `<tbody>${tbodyRows.join('')}</tbody>`;
+            result.push(`
+                <table style="border-collapse: collapse; width: 100%; margin: 15px 0; font-family: Arial, sans-serif;">
+                    ${thead}
+                    ${tbody}
+                </table>
+                <br>`);
         } else {
             result.push(lines[i]);
             i++;
@@ -755,8 +811,6 @@ function showTooltip(spell) {
     }
 
     if (spell.desc) {
-        console.log(spell.desc);
-        console.log(typeof(spell.desc))
         spell.desc = parseMarkdown(spell.desc)
     }
 
