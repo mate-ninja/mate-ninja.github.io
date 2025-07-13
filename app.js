@@ -652,7 +652,7 @@ function showTooltip(spell) {
         <p><strong>Duration:</strong> ${spell.duration}</p>
         ${concentrationInfo}
         <p><strong>Casting Time:</strong> ${spell.casting_time}</p>
-        <p>${spell.desc ? spell.desc.replace(/\*\*\*(.+?)\*\*\*/g, "<b>$1</b>").join('<br>') : ''}</p>
+        <p>${spell.desc ? spell.desc.join('<br>').replace(/\*\*\*(.+?)\*\*\*/g, "<b>$1</b>") : ''}</p>
         ${higherLevelsInfo}
     `;
     spellTooltip.style.display = 'block';
